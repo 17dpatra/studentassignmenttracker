@@ -26,15 +26,17 @@ function CoursesTab() {
                 method: "GET",
                 headers: { Authorization: `Bearer ${token}` },
             });
+
             if (response.ok) {
                 const data = await response.json();
                 setCourses(data);
-            } else {
-                console.error("Failed to fetch courses:", response.statusText);
+            } 
+            else {
+                console.error("Failed to get courses:", response.statusText);
             }
         }
         catch (error) {
-            console.error("Error fetching courses:", error);
+            console.error("Error getting courses:", error);
         }
     };
 
@@ -96,7 +98,7 @@ function CoursesTab() {
         } 
         catch (error) {
             console.error("Error:", error);
-            alert("An error occurred while adding/updating the course.");
+            alert("An error occurred while adding/updating a course.");
         }
     };
 
@@ -111,13 +113,14 @@ function CoursesTab() {
 
     //handle deleting a course
     const handleDelete = async (courseId) => {
-        if (!window.confirm("Are you sure you want to delete this course?")) return;
+        if (!window.confirm("Are you sure you want to delete this course? If yes, it will delete all the corresponding assignments with it as well")) return;
 
         try {
             const response = await fetch(`http://localhost:5000/deletecourse/${courseId}`, {
                 method: "DELETE",
                 headers: { Authorization: `Bearer ${token}` },
             });
+            
             if (response.ok) {
                 getCourses();   //get updated list of courses
                 alert("Course deleted successfully!");

@@ -192,5 +192,145 @@ def delete_course(course_id):
     return jsonify({"message": "Course deleted successfully"}), 200
 
 
+### ASSIGNMENTS ENDPOINTS ###
+#get all assignments for the user
+@app.route("/assignments", methods=["GET"])
+@jwt_required()
+def get_assignments():
+    current_user_id = int(get_jwt_identity())
+    user = User.query.filter_by(id=current_user_id).first()
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+    
+    #get all assignments for the user
+    assignments = Assignment.query.filter_by(user_id=user.id).all()
+    assignments_list = []
+    for assignment in assignments:
+        assignments_list.append({
+            "id": assignment.id,
+            "title": assignment.title,
+            "description": assignment.description if assignment.description else "",
+            "due_date": str(assignment.due_date),
+            "priority": int(assignment.priority) if assignment.priority is not None else None,
+            "course_id": assignment.course_id
+        })
+
+    return jsonify(assignments_list), 200
+
+
+#create an assignment
+@app.route("/addassignment", methods=["POST"])
+@jwt_required()
+def add_assignment():
+    data = request.get_json()
+    title = data.get("title")
+    description = data.get("description")
+    due_date = data.get("due_date")
+    priority = data.get("priority")
+    course_id = data.get("course_id")
+
+    if not title or not due_date or not course_id:
+        return jsonify({"error": "Title, Due Date, and Course are required"}), 400
+
+    #convert to datetime object to store properly in DB
+    try:
+        due_date_obj = datetime.strptime(due_date, "%Y-%m-%d").date()
+    except ValueError:
+        return jsonify({"error": "Invalid date format. Use YYYY-MM-DD."}), 400
+    
+    #get the user's id from the JWT token
+    current_user_id = int(get_jwt_identity())
+    user = User.query.filter_by(id=current_user_id).first()
+
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
+    #check if the course exists and belongs to the user
+    course = Course.query.filter_by(id=course_id, user_id=user.id).first()
+    if not course:
+        return jsonify({"error": "Course not found"}), 404
+
+    #save to DB
+    new_assignment = Assignment(
+        title=title,
+        description=description if description else "",
+        due_date=due_date_obj,
+        priority=int(priority) if priority not in (None, "") else None,
+        course_id=course.id,
+        user_id=user.id,
+    )
+
+    db.session.add(new_assignment)
+    db.session.commit()
+
+    return jsonify({
+        "id": new_assignment.id,
+        "title": new_assignment.title,
+        "description": new_assignment.description,
+        "due_date": str(new_assignment.due_date),
+        "priority": new_assignment.priority,
+        "course_id": new_assignment.course_id
+    }), 201
+
+
+#edit an existing assignment
+@app.route("/editassignment/<int:assignment_id>", methods=["PUT"])
+@jwt_required()
+def edit_assignment(assignment_id):
+    current_user_id = int(get_jwt_identity())
+    assignment = Assignment.query.filter_by(id=assignment_id, user_id=current_user_id).first()
+
+    #check if assignment exists and belongs to the user
+    if not assignment:
+        return jsonify({"error": "Assignment not found"}), 404
+
+    data = request.get_json()
+    title = data.get("title")
+    description = data.get("description")
+    due_date = data.get("due_date")
+    priority = data.get("priority")
+    course_id = data.get("course_id")
+
+    if not title or not due_date or not course_id:
+        return jsonify({"error": "Title, Due Date, and Course are required"}), 400
+
+    #check if the course exists and belongs to the user
+    course = Course.query.filter_by(id=course_id, user_id=current_user_id).first()
+    if not course:
+        return jsonify({"error": "Course not found"}), 404
+
+    #convert to datetime object to store properly in DB
+    try:
+        assignment.due_date = datetime.strptime(due_date, "%Y-%m-%d").date()
+        assignment.title = title
+        assignment.description = description if description else ""
+        assignment.priority = int(priority) if priority not in (None, "") else None
+        assignment.course_id = course.id
+    except ValueError:
+        return jsonify({"error": "Invalid date format"}), 400
+    
+    #save changes to DB
+    db.session.commit()
+    return jsonify({"message": "Assignment updated successfully"}), 200
+
+
+#delete an assignment
+@app.route("/deleteassignment/<int:assignment_id>", methods=["DELETE"])
+@jwt_required()
+def delete_assignment(assignment_id):
+    current_user_id = int(get_jwt_identity())
+    assignment = Assignment.query.filter_by(id=assignment_id, user_id=current_user_id).first()
+
+    #check if assignment exists and belongs to the user
+    if not assignment:
+        return jsonify({"error": "Assignment not found"}), 404
+
+    #delete the assignment from DB
+    db.session.delete(assignment)
+    db.session.commit()
+
+    return jsonify({"message": "Assignment deleted successfully"}), 200
+
+
 if __name__ == '__main__':
     app.run(debug=True)
