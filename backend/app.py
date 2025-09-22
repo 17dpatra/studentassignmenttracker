@@ -50,7 +50,7 @@ def register():
         }), 200
 
 
-#user logs in - accessing existing account
+#user logs in - accessing existing account and create JWT access token
 @app.route("/login", methods=["POST"])
 def login():
     username = request.json.get("username")
@@ -73,16 +73,30 @@ def login():
 
 
 ### COURSES ENDPOINTS ###
+#get all courses for the user
 @app.route("/courses", methods=["GET"])
 @jwt_required()
 def get_courses():
-    user_id = get_jwt_identity()
-    return jsonify({
-        "message": f"Here are courses for user {user_id}",
-        "courses": ["Math", "Science", "History"]
-    })
+    current_user_id = int(get_jwt_identity())
+    user = User.query.filter_by(id=current_user_id).first()
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+    
+    #get courses for the user
+    courses = Course.query.filter_by(user_id=user.id).all()
+    courses_list = []
+    for course in courses:
+        courses_list.append({
+            "id": course.id,
+            "name": course.name,
+            "start_date": str(course.start_date),
+            "end_date": str(course.end_date),
+        })
+
+    return jsonify(courses_list), 200
 
 
+#create a course
 @app.route("/addcourse", methods=["POST"])
 @jwt_required()
 def add_course():
@@ -101,14 +115,12 @@ def add_course():
     except ValueError:
         return jsonify({"error": "Invalid date format. Use YYYY-MM-DD."}), 400
     
-
     #get the user's id from the JWT token
     current_user_id = int(get_jwt_identity())
     user = User.query.filter_by(id=current_user_id).first()
 
     if not user:
         return jsonify({"error": "User not found"}), 404
-    
 
     #save to DB
     new_course = Course(
@@ -128,6 +140,56 @@ def add_course():
         "end_date": str(new_course.end_date),
     }), 201
 
+
+#edit an existing course
+@app.route("/editcourse/<int:course_id>", methods=["PUT"])
+@jwt_required()
+def edit_course(course_id):
+    current_user_id = int(get_jwt_identity())
+    course = Course.query.filter_by(id=course_id, user_id=current_user_id).first()
+
+    #check if course exists and belongs to the user
+    if not course:
+        return jsonify({"error": "Course not found"}), 404
+
+    data = request.get_json()
+    name = data.get("name")
+    start_date = data.get("start_date")
+    end_date = data.get("end_date")
+
+    if not name or not start_date or not end_date:
+        return jsonify({"error": "All fields are required"}), 400
+
+    #convert to datetime objects to store properly in DB
+    try:
+        course.start_date = datetime.strptime(start_date, "%Y-%m-%d").date()
+        course.end_date = datetime.strptime(end_date, "%Y-%m-%d").date()
+        course.name = name
+    except ValueError:
+        return jsonify({"error": "Invalid date format"}), 400
+
+    #save changes to DB
+    db.session.commit()
+
+    return jsonify({"message": "Course updated successfully"}), 200
+
+
+#delete a course
+@app.route("/deletecourse/<int:course_id>", methods=["DELETE"])
+@jwt_required()
+def delete_course(course_id):
+    current_user_id = int(get_jwt_identity())
+    course = Course.query.filter_by(id=course_id, user_id=current_user_id).first()
+
+    #check if course exists and belongs to the user
+    if not course:
+        return jsonify({"error": "Course not found"}), 404
+
+    #delete the course from DB
+    db.session.delete(course)
+    db.session.commit()
+
+    return jsonify({"message": "Course deleted successfully"}), 200
 
 
 if __name__ == '__main__':
