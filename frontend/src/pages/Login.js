@@ -9,7 +9,7 @@ function Login() {
     const handleLogin = async (e) => {
         e.preventDefault();
         
-        //Validation: Incomplete info
+        //validation: Incomplete info
         if (!e.target.username.value || !e.target.password.value) {
             alert("Both fields are required and must be filled in.");
             return;
