@@ -45,9 +45,10 @@ function AssignmentsTab() {
     }
   };
 
-  //get assignments on component mount
+  //get assignments and courses on component mount
   useEffect(() => {
     getAssignments();
+    getCourses();
   }, []);
 
   //get courses for dropdown when adding an assignment or editing
@@ -74,7 +75,8 @@ function AssignmentsTab() {
     setAssignmentTitle("");
     setAssignmentDescription("");
     setDueDate("");
-    setPriority("");
+    setPriority("1");
+    setSelectedCourseId("");
     setEditingAssignment(null);
     setDisplayForm(false);
   };
@@ -148,7 +150,7 @@ function AssignmentsTab() {
     setPriority(assignment.priority);
     setSelectedCourseId(assignment.course_id);
     setDisplayForm(true);
-    getCourses(); //get courses when edit form triggered
+    //getCourses(); //get courses when edit form triggered - NO NEED, done on component mount
   };
 
   //handle deleting an assignment
@@ -233,7 +235,7 @@ function AssignmentsTab() {
           className="btn btn-primary mb-3"
           onClick={() => {
             setDisplayForm(true);
-            getCourses(); // fetch courses only when form opens
+            //getCourses(); //get courses only when form opens - NO NEED, done on component mount
           }}
         >
           {editingAssignment ? "Edit Assignment" : "+ Add Assignment"}

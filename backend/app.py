@@ -185,6 +185,11 @@ def delete_course(course_id):
     if not course:
         return jsonify({"error": "Course not found"}), 404
 
+    #delete all assignments associated with the course - user is informed on frontend before deleting
+    assignments = Assignment.query.filter_by(course_id=course.id).all()
+    for assignment in assignments:
+        db.session.delete(assignment)
+
     #delete the course from DB
     db.session.delete(course)
     db.session.commit()
