@@ -120,7 +120,7 @@ function CoursesTab() {
                 method: "DELETE",
                 headers: { Authorization: `Bearer ${token}` },
             });
-            
+
             if (response.ok) {
                 getCourses();   //get updated list of courses
                 alert("Course deleted successfully!");
@@ -191,7 +191,7 @@ function CoursesTab() {
             {displayForm && (
                 <form className="mt-4"  onSubmit={handleSubmit}>
                     <div className="mb-3">
-                        <label className="form-label">Course Name</label>
+                        <label className="form-label">Course Name <span className="text-danger">*</span></label>
                         <input
                         type="text"
                         className="form-control"
@@ -202,7 +202,7 @@ function CoursesTab() {
                     </div>
 
                     <div className="mb-3">
-                        <label className="form-label">Start Date</label>
+                        <label className="form-label">Start Date <span className="text-danger">*</span></label>
                         <input
                         type="date"
                         className="form-control"
@@ -213,7 +213,7 @@ function CoursesTab() {
                     </div>
 
                     <div className="mb-3">
-                        <label className="form-label">End Date</label>
+                        <label className="form-label">End Date <span className="text-danger">*</span></label>
                         <input
                         type="date"
                         className="form-control"

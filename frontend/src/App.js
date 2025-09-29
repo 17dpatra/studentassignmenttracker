@@ -7,7 +7,6 @@ import CoursesLayout from './pages/Courses';
 import CoursesTab from "./pages/CoursesTab";
 import AssignmentsTab from "./pages/AssignmentsTab";
 import CalendarTab from "./pages/CalendarTab";
-import ProfileTab from "./pages/ProfileTab";
 
 function App() {
   return (
@@ -20,7 +19,6 @@ function App() {
             <Route index element={<CoursesTab />} />
             <Route path="assignments" element={<AssignmentsTab />} />
             <Route path="calendar" element={<CalendarTab />} />
-            <Route path="profile" element={<ProfileTab />} />
           </Route>
         </Routes>
       </Router>

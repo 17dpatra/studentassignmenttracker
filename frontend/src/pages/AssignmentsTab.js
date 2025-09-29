@@ -204,6 +204,7 @@ function AssignmentsTab() {
   return (
     <div>
       <h2>Your Assignments</h2>
+      <p>Remember to create a course before an assignment!</p>
       {/* Sorting controls */}
       <div className="mb-3">
         <label>Sort by:</label>
@@ -245,7 +246,7 @@ function AssignmentsTab() {
       {displayForm && (
         <form className="mt-4" onSubmit={handleSubmit}>
           <div className="mb-3">
-            <label className="form-label">Assignment Title</label>
+            <label className="form-label">Assignment Title <span className="text-danger">*</span></label>
             <input
               type="text"
               className="form-control"
@@ -266,7 +267,7 @@ function AssignmentsTab() {
           </div>
 
           <div className="mb-3">
-            <label className="form-label">Due Date</label>
+            <label className="form-label">Due Date <span className="text-danger">*</span></label>
             <input
               type="date"
               className="form-control"
@@ -290,7 +291,7 @@ function AssignmentsTab() {
           </div>
 
           <div className="mb-3">
-            <label className="form-label">Select Course</label>
+            <label className="form-label">Select Course <span className="text-danger">*</span></label>
             <select
               className="form-select"
               value={selectedCourseId}
