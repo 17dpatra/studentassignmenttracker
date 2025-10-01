@@ -179,7 +179,7 @@ function AssignmentsTab() {
     }
   };
 
-  //handle sorting by name, start date, end date
+  //handle sorting by name, due date, priority
   const sortedAssignments = [...assignments].sort((a, b) => {
     let valA = a[sortBy];
     let valB = b[sortBy];
