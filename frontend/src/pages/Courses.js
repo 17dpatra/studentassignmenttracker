@@ -32,14 +32,6 @@ function CoursesLayout() {
             Calendar
           </NavLink>
         </li>
-        <li className="nav-item">
-          <NavLink 
-            to="profile" 
-            className={({ isActive }) => "nav-link" + (isActive ? " active" : "")}
-          >
-            Profile
-          </NavLink>
-        </li>
       </ul>
 
       <div className="card card-body">
