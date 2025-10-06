@@ -92,7 +92,7 @@ function AssignmentsTab() {
     }
 
     //validation - check if due date is within the course dates
-    const selectedCourse = courses.find(course => course.id === selectedCourseId);
+    const selectedCourse = courses.find(course => course.id === parseInt(selectedCourseId));
     if (selectedCourse) {
       const courseStart = new Date(selectedCourse.start_date);
       const courseEnd = new Date(selectedCourse.end_date);

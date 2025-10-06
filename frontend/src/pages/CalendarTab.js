@@ -35,11 +35,11 @@ function CalendarTab() {
     getAssignments();
   }, []);
 
-  //convert each assignment into a FullCalendar events
+  //convert each assignment into a FullCalendar event
   const events = assignments.map((a) => ({
     id: a.id,
     title: a.title,
-    date: a.due_date, //must be in YYYY-MM-DD format
+    start: a.due_date, //must be in YYYY-MM-DD format and FullCalendar needs it to be called 'start' for comparison
   }));
 
 
@@ -51,6 +51,15 @@ function CalendarTab() {
         initialView="dayGridMonth"
         events={events}
         height="auto"
+        eventDidMount={(data) => {
+          const todayDate = new Date();
+          todayDate.setHours(0, 0, 0, 0);
+          const dueDateOfEvent = new Date(data.event.start);
+
+          if (dueDateOfEvent < todayDate) {
+            data.el.style.backgroundColor = '#e0e0e0';    //change to grey if the due date has passed
+          }
+        }}
       />
     </div>
   );
